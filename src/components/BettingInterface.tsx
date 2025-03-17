@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
@@ -12,9 +11,6 @@ import BettingControls from "./BettingControls";
 import GameModeSelector from "./GameModeSelector";
 import BetHistoryPanel from "./BetHistoryPanel";
 import { motion } from "framer-motion";
-
-// Add framer-motion
-<lov-add-dependency>framer-motion@latest</lov-add-dependency>
 
 interface BettingInterfaceProps {
   className?: string;
@@ -80,7 +76,7 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
             id: Date.now(),
             amount: betAmount,
             multiplier: currentMultiplier,
-            result: win ? 'win' : 'loss',
+            result: win ? 'win' : 'loss' as 'win' | 'loss',
             profit: win ? betAmount * currentMultiplier - betAmount : -betAmount
           },
           ...prev
