@@ -4,11 +4,13 @@ import { motion } from 'framer-motion';
 
 interface BetHistoryPanelProps {
   history: Array<{
-    id: number;
+    id: number | string;
     amount: number;
     multiplier: number;
     result: 'win' | 'loss';
     profit: number;
+    timestamp?: string; // Optional timestamp
+    currency?: string;  // Optional currency
   }>;
 }
 
@@ -34,8 +36,14 @@ const BetHistoryPanel: React.FC<BetHistoryPanelProps> = ({ history }) => {
           }`}
         >
           <div className="flex flex-col">
-            <span className="text-xs text-gray-400">Bet #{history.length - index}</span>
-            <span className="text-sm">${bet.amount.toFixed(2)} @ {bet.multiplier.toFixed(2)}x</span>
+            <span className="text-xs text-gray-400">
+              Bet #{history.length - index} 
+              {bet.timestamp && <span className="ml-1 opacity-70">{new Date(bet.timestamp).toLocaleTimeString()}</span>}
+            </span>
+            <span className="text-sm">
+              ${bet.amount.toFixed(2)} @ {bet.multiplier.toFixed(2)}x
+              {bet.currency && <span className="text-xs ml-1 opacity-70">{bet.currency}</span>}
+            </span>
           </div>
           <div className="flex flex-col items-end">
             <span className={`text-xs ${
