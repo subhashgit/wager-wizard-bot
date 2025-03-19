@@ -23,30 +23,22 @@ export interface StakeBetResponse {
 
 // GraphQL query for dice bet
 const DICE_BET_MUTATION = `
- mutation DiceBet($amount: Float!, $currency: CurrencyEnum!, $startCard: HiloBetStartCardInput!) {
-  hiloBet(amount: $amount, currency: $currency, startCard: $startCard) {
+mutation HiloBet($amount: Float!, $currency: CurrencyEnum!) {
+  hiloBet(
+    amount: $amount
+    currency: $currency
+  ) {
     id
-    amount
     payout
-    currency
-    game
+    amount
+    
   }
 }
 `;
 
 // GraphQL query for limbo bet
 const LIMBO_BET_MUTATION = `
-  mutation LimboBet($amount: Float!, $currency: CurrencyEnum!, multiplierTarget:Float!) {
-    limboBet(amount: $amount, multiplierTarget: $multiplierTarget, currency: $currency) {
-      id
-      amount
-      payout
-      currency
-      multiplierTarget
-      game
-      createdAt
-    }
-  }
+  mutation DiceRoll($amount: Float!, $target: Float!, $condition: CasinoGameDiceConditionEnum!, $currency: CurrencyEnum!, $identifier: String!) {\n  diceRoll(\n    amount: $amount\n    target: $target\n    condition: $condition\n    currency: $currency\n    identifier: $identifier\n  ) {\n    ...CasinoBet\n    state {\n      ...CasinoGameDice\n    }\n  }\n}\n\nfragment CasinoBet on CasinoBet {\n  id\n  active\n  payoutMultiplier\n  amountMultiplier\n  amount\n  payout\n  updatedAt\n  currency\n  game\n  user {\n    id\n    name\n  }\n}\n\nfragment CasinoGameDice on CasinoGameDice {\n  result\n  target\n  condition\n}\n
 `;
 
 export const placeBet = async (request: StakeBetRequest): Promise<StakeBetResponse> => {
@@ -64,9 +56,12 @@ export const placeBet = async (request: StakeBetRequest): Promise<StakeBetRespon
       
       variables = {
         amount,
+        dice:'dice',
         target,
         currency,
-        condition: 'over',
+        over:true,
+        condition: 'above',
+        identifier: '',
         startCard: {
            suit: "SPADES",
           rank: "ACE"
