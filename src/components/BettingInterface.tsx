@@ -21,7 +21,7 @@ interface BettingInterfaceProps {
 const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
   const [isApiConnected, setIsApiConnected] = useState<boolean>(false);
   const [apiToken, setApiToken] = useState<string>('');
-  const [userBalance, setUserBalance] = useState<number | null>(null);
+  const [userBalance, setUserBalance] = useState([]);
   
   const [baseAmount, setBaseAmount] = useState<string>('0.00');
   const [currency, setCurrency] = useState<string>('usdc');
