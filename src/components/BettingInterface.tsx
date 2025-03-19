@@ -24,6 +24,8 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
   const [userBalance, setUserBalance] = useState<number | null>(null);
   
   const [baseAmount, setBaseAmount] = useState<string>('0.00');
+  const [currency, setCurrency] = useState<string>('usdc');
+  
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [currentGame, setCurrentGame] = useState<'dice' | 'limbo'>('dice');
   const [targetMultiplier, setTargetMultiplier] = useState<number>(2.0);
@@ -108,6 +110,7 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
           token: apiToken,
           amount: currentBetAmount,
           multiplier: targetMultiplier,
+          currency: currency,
           game: currentGame
         });
         
@@ -186,7 +189,7 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
     return () => {
       isCancelled = true;
     };
-  }, [isRunning, isApiConnected, apiToken, baseAmount, targetMultiplier, currentGame, increaseOnLoss, stopOnWin, betCount, userBalance]);
+  }, [isRunning, isApiConnected, apiToken, baseAmount, currency,targetMultiplier, currentGame, increaseOnLoss, stopOnWin, betCount, userBalance]);
 
   useEffect(() => {
     if (!isRunning || isApiConnected) return;
@@ -265,6 +268,8 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
       position: "bottom-center",
     });
   };
+// console.log(userBalance); 
+
 
   return (
     <motion.div 
@@ -324,13 +329,24 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
                     {isApiConnected && userBalance !== null && (
                       <div className="bg-betting-dark/40 p-3 rounded-md flex items-center justify-between">
                         <span className="text-sm text-gray-300">Available Balance:</span>
-                        <span className="font-medium text-betting-green">${userBalance.toFixed(2)}</span>
+                        <span className="font-medium text-betting-green">
+
+                          <select onChange={(e) => setCurrency(e.target.value)}>
+                          {userBalance.map(item => (
+                              <option key={item.key} value={item.available.currency}>
+                                <h1>{item.available.currency}</h1>
+                                (<p>{item.available.amount}</p>)
+                              </option>
+                            ))}
+
+                          </select>
+                        </span>
                       </div>
                     )}
                     
                     <div>
                       <Label htmlFor="base-amount" className="text-sm text-gray-400">
-                        Base Bet Amount (USD)
+                        Base Bet Amount (USDC)
                       </Label>
                       <div className="relative mt-1.5">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
