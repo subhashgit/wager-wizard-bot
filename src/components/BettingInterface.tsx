@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Play, Pause, RotateCcw, PlusCircle, MinusCircle, DollarSign } from "lucide-react";
+import { Play, Pause, RotateCcw, PlusCircle, MinusCircle, DollarSign, Settings } from "lucide-react";
 import BettingControls from "./BettingControls";
 import GameModeSelector from "./GameModeSelector";
 import BetHistoryPanel from "./BetHistoryPanel";
@@ -22,6 +22,7 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
   const [isApiConnected, setIsApiConnected] = useState<boolean>(false);
   const [apiToken, setApiToken] = useState<string>('');
   const [userBalance, setUserBalance] = useState([]);
+  const [showApiSettings, setShowApiSettings] = useState<boolean>(false);
   
   const [baseAmount, setBaseAmount] = useState<string>('0.00');
   const [currency, setCurrency] = useState<string>('usdc');
@@ -79,6 +80,10 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
         description: result.error,
       });
     }
+  };
+
+  const toggleApiSettings = () => {
+    setShowApiSettings(!showApiSettings);
   };
 
   useEffect(() => {
@@ -268,8 +273,6 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
       position: "bottom-center",
     });
   };
-// console.log(userBalance); 
-
 
   return (
     <motion.div 
@@ -296,17 +299,32 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
                 </div>
               </div>
               
-              <GameModeSelector 
-                currentGame={currentGame} 
-                onChange={setCurrentGame} 
-              />
+              <div className="flex items-center space-x-3">
+                <GameModeSelector 
+                  currentGame={currentGame} 
+                  onChange={setCurrentGame} 
+                />
+                <button 
+                  onClick={toggleApiSettings}
+                  className="relative p-2 rounded-md transition-all duration-200 text-gray-400 hover:text-gray-200 hover:bg-betting-dark/40"
+                >
+                  <Settings size={22} />
+                </button>
+              </div>
             </div>
           </Card>
         </motion.div>
         
-        <motion.div variants={itemVariants}>
-          <StakeApiCredentials onApiConnected={handleApiConnection} />
-        </motion.div>
+        {showApiSettings && (
+          <motion.div 
+            variants={itemVariants}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            <StakeApiCredentials onApiConnected={handleApiConnection} />
+          </motion.div>
+        )}
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <motion.div variants={itemVariants} className="lg:col-span-2">
