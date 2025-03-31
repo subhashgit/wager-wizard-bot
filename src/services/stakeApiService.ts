@@ -3,8 +3,9 @@ export interface StakeBetRequest {
   token: string;
   amount: number;
   multiplier: number;
-  currency:string;
+  currency: string;
   game: 'dice' | 'limbo';
+  betSpeed?: number; // Optional bet speed parameter
 }
 
 export interface StakeBetResponse {
@@ -34,7 +35,7 @@ mutation LimboBet($amount: Float!, $multiplierTarget: Float!, $currency: Currenc
 
 export const placeBet = async (request: StakeBetRequest): Promise<StakeBetResponse> => {
   try {
-    const { token, amount, multiplier, game, currency } = request;
+    const { token, amount, multiplier, game, currency, betSpeed = 3000 } = request;
     console.log(currency);
     let mutation = '';
     let variables = {};
@@ -51,7 +52,7 @@ export const placeBet = async (request: StakeBetRequest): Promise<StakeBetRespon
         game: 'dice',
         currency,
         condition: 'above',
-        identifier: '',
+        identifier: `speed-${betSpeed}`, // Include bet speed in the identifier
        
       };
     } else if (game === 'limbo') {
@@ -60,9 +61,15 @@ export const placeBet = async (request: StakeBetRequest): Promise<StakeBetRespon
       variables = {
         amount,
         currency,
-        identifier: '',
+        identifier: `speed-${betSpeed}`, // Include bet speed in the identifier
         multiplierTarget: multiplier
       };
+    }
+    
+    // Add a small artificial delay based on the requested bet speed
+    // This helps control how fast bets are placed
+    if (betSpeed > 1000) {
+      await new Promise(resolve => setTimeout(resolve, betSpeed - 1000));
     }
     
     const response = await fetch('https://stake.bet/_api/graphql', {

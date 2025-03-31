@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Play, Pause, RotateCcw, PlusCircle, MinusCircle, DollarSign, Settings } from "lucide-react";
+import { Play, Pause, RotateCcw, PlusCircle, MinusCircle, DollarSign, Settings, Timer } from "lucide-react";
 import BettingControls from "./BettingControls";
 import GameModeSelector from "./GameModeSelector";
 import BetHistoryPanel from "./BetHistoryPanel";
@@ -21,7 +21,7 @@ interface BettingInterfaceProps {
 const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
   const [isApiConnected, setIsApiConnected] = useState<boolean>(false);
   const [apiToken, setApiToken] = useState<string>('');
-  const [userBalance, setUserBalance] = useState([]);
+  const [userBalance, setUserBalance] = useState<any[]>([]);
   const [showApiSettings, setShowApiSettings] = useState<boolean>(false);
   
   const [baseAmount, setBaseAmount] = useState<string>('0.00');
@@ -36,6 +36,7 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
   const [profit, setProfit] = useState<number>(0);
   const [currentBet, setCurrentBet] = useState<number>(0);
   const [betHistory, setBetHistory] = useState<Array<{id: number | string, amount: number, multiplier: number, result: 'win' | 'loss', profit: number, timestamp?: string, currency?: string}>>([]);
+  const [betSpeed, setBetSpeed] = useState<number>(3000);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -67,7 +68,7 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
     if (connected && token) {
       fetchUserBalance(token);
     } else {
-      setUserBalance(null);
+      setUserBalance([]);
     }
   };
 
@@ -100,7 +101,7 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
         fetchUserBalance(apiToken);
       }
       
-      if (userBalance !== null && currentBetAmount > userBalance) {
+      if (userBalance.length > 0 && currentBetAmount > parseFloat(userBalance[0]?.available?.amount || '0')) {
         toast.error("Insufficient balance", {
           description: "Bet amount exceeds available balance.",
         });
@@ -116,7 +117,8 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
           amount: currentBetAmount,
           multiplier: targetMultiplier,
           currency: currency,
-          game: currentGame
+          game: currentGame,
+          betSpeed: betSpeed
         });
         
         if (response.success && response.data) {
@@ -185,7 +187,7 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
       }
       
       if (isRunning && !isCancelled) {
-        setTimeout(placeBetWithApi, 3000);
+        setTimeout(placeBetWithApi, betSpeed);
       }
     };
     
@@ -194,7 +196,7 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
     return () => {
       isCancelled = true;
     };
-  }, [isRunning, isApiConnected, apiToken, baseAmount, currency,targetMultiplier, currentGame, increaseOnLoss, stopOnWin, betCount, userBalance]);
+  }, [isRunning, isApiConnected, apiToken, baseAmount, currency, targetMultiplier, currentGame, increaseOnLoss, stopOnWin, betCount, userBalance, betSpeed]);
 
   useEffect(() => {
     if (!isRunning || isApiConnected) return;
@@ -234,10 +236,10 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
       if (win && stopOnWin) {
         setIsRunning(false);
       }
-    }, 1500);
+    }, betSpeed / 2);
     
     return () => clearInterval(interval);
-  }, [isRunning, baseAmount, targetMultiplier, profit, stopOnWin, isApiConnected]);
+  }, [isRunning, baseAmount, targetMultiplier, profit, stopOnWin, isApiConnected, betSpeed]);
 
   const handleStartStop = () => {
     if (parseFloat(baseAmount) <= 0) {
@@ -344,19 +346,16 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
                 
                 <TabsContent value="static" className="p-6 space-y-6 animate-enter">
                   <div className="space-y-4">
-                    {isApiConnected && userBalance !== null && (
+                    {isApiConnected && userBalance.length > 0 && (
                       <div className="bg-betting-dark/40 p-3 rounded-md flex items-center justify-between">
                         <span className="text-sm text-gray-300">Available Balance:</span>
                         <span className="font-medium text-betting-green">
-
-                          <select onChange={(e) => setCurrency(e.target.value)}>
+                          <select onChange={(e) => setCurrency(e.target.value)} className="bg-betting-dark border-betting-dark-lighter rounded px-2 py-1">
                           {userBalance.map(item => (
                               <option key={item.key} value={item.available.currency}>
-                                <h1>{item.available.currency}</h1>
-                                (<p>{item.available.amount}</p>)
+                                {item.available.currency.toUpperCase()}: {parseFloat(item.available.amount).toFixed(2)}
                               </option>
                             ))}
-
                           </select>
                         </span>
                       </div>
@@ -364,7 +363,7 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
                     
                     <div>
                       <Label htmlFor="base-amount" className="text-sm text-gray-400">
-                        Base Bet Amount (USDC)
+                        Base Bet Amount
                       </Label>
                       <div className="relative mt-1.5">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -409,6 +408,25 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
                         className="input-field mt-1.5"
                         placeholder="0.1"
                       />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="bet-speed" className="text-sm text-gray-400">
+                        Bet Speed: {(betSpeed / 1000).toFixed(1)}s
+                      </Label>
+                      <div className="flex items-center space-x-2">
+                        <Timer size={16} className="text-gray-400" />
+                        <Slider
+                          id="bet-speed"
+                          defaultValue={[3000]}
+                          min={1000}
+                          max={10000}
+                          step={500}
+                          value={[betSpeed]}
+                          onValueChange={(value) => setBetSpeed(value[0])}
+                          className="my-2"
+                        />
+                      </div>
                     </div>
                     
                     <div className="flex items-center space-x-2">
@@ -592,7 +610,7 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
               </div>
               
               <div className="text-sm text-gray-400">
-                {currentGame === 'dice' ? 'Game Mode: Dice' : 'Game Mode: Limbo'} • Target: {targetMultiplier.toFixed(2)}x
+                {currentGame === 'dice' ? 'Game Mode: Dice' : 'Game Mode: Limbo'} • Target: {targetMultiplier.toFixed(2)}x • Speed: {(betSpeed/1000).toFixed(1)}s
                 {isApiConnected && <span className="ml-2 text-betting-blue">• Using Stake API</span>}
               </div>
             </div>
