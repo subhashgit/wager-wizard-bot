@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
@@ -302,6 +303,24 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
               </div>
               
               <div className="flex items-center space-x-3">
+                {isApiConnected && userBalance.length > 0 && (
+                  <div className="bg-betting-dark/40 p-2 rounded-md mr-2">
+                    <div className="flex items-center">
+                      <span className="text-sm text-gray-300 mr-2">Balance:</span>
+                      <select 
+                        onChange={(e) => setCurrency(e.target.value)} 
+                        className="bg-betting-dark border-betting-dark-lighter rounded px-2 py-1 text-betting-green font-medium text-sm"
+                      >
+                        {userBalance.map(item => (
+                          <option key={item.key} value={item.available.currency}>
+                            {item.available.currency.toUpperCase()}: {parseFloat(item.available.amount).toFixed(2)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                )}
+                
                 <GameModeSelector 
                   currentGame={currentGame} 
                   onChange={setCurrentGame} 
@@ -377,21 +396,6 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
                 
                 <TabsContent value="static" className="p-6 space-y-6 animate-enter">
                   <div className="space-y-4">
-                    {isApiConnected && userBalance.length > 0 && (
-                      <div className="bg-betting-dark/40 p-3 rounded-md flex items-center justify-between">
-                        <span className="text-sm text-gray-300">Available Balance:</span>
-                        <span className="font-medium text-betting-green">
-                          <select onChange={(e) => setCurrency(e.target.value)} className="bg-betting-dark border-betting-dark-lighter rounded px-2 py-1">
-                          {userBalance.map(item => (
-                              <option key={item.key} value={item.available.currency}>
-                                {item.available.currency.toUpperCase()}: {parseFloat(item.available.amount).toFixed(2)}
-                              </option>
-                            ))}
-                          </select>
-                        </span>
-                      </div>
-                    )}
-                    
                     <div>
                       <Label htmlFor="base-amount" className="text-sm text-gray-400">
                         Base Bet Amount
@@ -634,3 +638,4 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
 };
 
 export default BettingInterface;
+
