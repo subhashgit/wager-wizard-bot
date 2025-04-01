@@ -22,7 +22,6 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
   const [isApiConnected, setIsApiConnected] = useState<boolean>(false);
   const [apiToken, setApiToken] = useState<string>('');
   const [userBalance, setUserBalance] = useState<any[]>([]);
-  const [showApiSettings, setShowApiSettings] = useState<boolean>(false);
   const [showSettings, setShowSettings] = useState<boolean>(false);
   
   const [baseAmount, setBaseAmount] = useState<string>('0.00');
@@ -82,10 +81,6 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
         description: result.error,
       });
     }
-  };
-
-  const toggleApiSettings = () => {
-    setShowApiSettings(!showApiSettings);
   };
 
   const toggleSettings = () => {
@@ -331,47 +326,36 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
           >
             <Card className="bg-betting-dark-accent border-betting-dark-lighter p-6">
               <h3 className="font-medium text-lg mb-4">Settings</h3>
-              <div className="space-y-4">
+              
+              <div className="space-y-6">
                 <div>
-                  <Label htmlFor="bet-speed" className="text-sm text-gray-400">
-                    Bet Speed: {(betSpeed / 1000).toFixed(1)}s
-                  </Label>
-                  <div className="flex items-center space-x-2">
-                    <Timer size={16} className="text-gray-400" />
-                    <Slider
-                      id="bet-speed"
-                      defaultValue={[3000]}
-                      min={1000}
-                      max={10000}
-                      step={500}
-                      value={[betSpeed]}
-                      onValueChange={(value) => setBetSpeed(value[0])}
-                      className="my-2"
-                    />
+                  <h4 className="font-medium text-sm text-gray-300 mb-2">Bet Speed</h4>
+                  <div>
+                    <Label htmlFor="bet-speed" className="text-sm text-gray-400">
+                      Speed: {(betSpeed / 1000).toFixed(1)}s between bets
+                    </Label>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <Timer size={16} className="text-gray-400" />
+                      <Slider
+                        id="bet-speed"
+                        defaultValue={[3000]}
+                        min={1000}
+                        max={10000}
+                        step={500}
+                        value={[betSpeed]}
+                        onValueChange={(value) => setBetSpeed(value[0])}
+                        className="my-2"
+                      />
+                    </div>
                   </div>
                 </div>
-                <div className="pt-2">
-                  <Button 
-                    onClick={toggleApiSettings} 
-                    variant="outline"
-                    className="w-full text-sm"
-                  >
-                    API Connection Settings
-                  </Button>
+                
+                <div className="pt-2 border-t border-betting-dark-lighter">
+                  <h4 className="font-medium text-sm text-gray-300 mb-3">API Connection</h4>
+                  <StakeApiCredentials onApiConnected={handleApiConnection} />
                 </div>
               </div>
             </Card>
-          </motion.div>
-        )}
-        
-        {showApiSettings && (
-          <motion.div 
-            variants={itemVariants}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-          >
-            <StakeApiCredentials onApiConnected={handleApiConnection} />
           </motion.div>
         )}
         
