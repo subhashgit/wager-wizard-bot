@@ -122,7 +122,7 @@ export const placeBet = async (request: StakeBetRequest): Promise<StakeBetRespon
 };
 
 // Get user balance
-export const getUserBalance = async (token: string): Promise<{ success: boolean, balance?: number, error?: string }> => {
+export const getUserBalance = async (token: string): Promise<{ success: boolean, balance?: any[], error?: string }> => {
   try {
     const query = "query StakeBalances($available: Boolean = true, $vault: Boolean = false) {  user {\r\n    id\r\n    balances {\r\n      available @include(if: $available) {\r\n        currency\r\n        amount\r\n        __typename\r\n      }\r\n      vault @include(if: $vault) {\r\n        currency\r\n        amount\r\n        __typename\r\n      }\r\n      __typename\r\n    }\r\n    __typename\r\n  }\r\n}";
     
@@ -158,7 +158,7 @@ export const getUserBalance = async (token: string): Promise<{ success: boolean,
     const balance = data.data.user.balances;
     return {
       success: true,
-      balance:balance
+      balance: balance
     };
   } catch (error) {
     return {

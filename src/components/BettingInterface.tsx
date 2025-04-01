@@ -75,7 +75,7 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
   const fetchUserBalance = async (token: string) => {
     const result = await getUserBalance(token);
     if (result.success && result.balance !== undefined) {
-      setUserBalance(result.balance);
+      setUserBalance(result.balance as any[]);
     } else if (result.error) {
       toast.error("Failed to fetch balance", {
         description: result.error,
