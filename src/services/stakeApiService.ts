@@ -65,11 +65,8 @@ export const placeBet = async (request: StakeBetRequest): Promise<StakeBetRespon
       };
     }
     
-    // Add a small artificial delay based on the requested bet speed
-    // This helps control how fast bets are placed
-    if (betSpeed > 1000) {
-      await new Promise(resolve => setTimeout(resolve, betSpeed - 1000));
-    }
+    // We remove the artificial delay that was causing issues
+    // The betSpeed will be controlled by the useEffect interval in BettingInterface
     
     const response = await fetch('https://stake.bet/_api/graphql', {
       method: 'POST',

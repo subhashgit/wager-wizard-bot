@@ -210,7 +210,7 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
     return () => {
       isCancelled = true;
     };
-  }, [isRunning, isApiConnected, apiToken, baseAmount, currency, targetMultiplier, currentGame, increaseOnLoss, stopOnWin, betCount, userBalance, betSpeed]);
+  }, [isRunning, isApiConnected, apiToken, baseAmount, currency, targetMultiplier, currentGame, increaseOnLoss, stopOnWin, betCount, betSpeed]);
 
   useEffect(() => {
     if (!isRunning || isApiConnected) return;
@@ -288,6 +288,10 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
     toast("Stats reset", {
       position: "bottom-center",
     });
+  };
+
+  const handleBetSpeedChange = (value: number[]) => {
+    setBetSpeed(value[0]);
   };
 
   return (
@@ -375,7 +379,7 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
                         max={10000}
                         step={500}
                         value={[betSpeed]}
-                        onValueChange={(value) => setBetSpeed(value[0])}
+                        onValueChange={handleBetSpeedChange}
                         className="my-2"
                       />
                     </div>
