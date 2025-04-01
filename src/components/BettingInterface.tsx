@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
@@ -88,6 +87,18 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
     setShowSettings(!showSettings);
   };
 
+  const getCurrentBalanceForSelectedCurrency = () => {
+    if (!userBalance || userBalance.length === 0) return 0;
+    
+    const selectedCurrencyBalance = userBalance.find(
+      item => item.available && item.available.currency === currency
+    );
+    
+    return selectedCurrencyBalance 
+      ? parseFloat(selectedCurrencyBalance.available.amount || '0') 
+      : 0;
+  };
+
   useEffect(() => {
     if (!isRunning || !isApiConnected || !apiToken) return;
     
@@ -102,9 +113,11 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
         fetchUserBalance(apiToken);
       }
       
-      if (userBalance.length > 0 && currentBetAmount > parseFloat(userBalance[0]?.available?.amount || '0')) {
+      const currentBalance = getCurrentBalanceForSelectedCurrency();
+      
+      if (currentBetAmount > currentBalance) {
         toast.error("Insufficient balance", {
-          description: "Bet amount exceeds available balance.",
+          description: `Bet amount exceeds available ${currency.toUpperCase()} balance.`,
         });
         setIsRunning(false);
         return;
@@ -638,4 +651,3 @@ const BettingInterface: React.FC<BettingInterfaceProps> = ({ className }) => {
 };
 
 export default BettingInterface;
-
